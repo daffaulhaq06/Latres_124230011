@@ -1,0 +1,152 @@
+1. Topik: SharedPreferences (Login & Register)
+Ini adalah syarat utama di soal.
+
+Variabel Penting:
+
+SharedPreferences prefs: Objek utama untuk mengakses memori penyimpanan HP.
+
+Key 'username', 'password', 'isLogin': Ini adalah "label" loker penyimpanan. Kunci ini harus sama persis saat menyimpan dan saat mengambil.
+
+Fungsi/Kode Penting:
+
+await SharedPreferences.getInstance():
+
+Penjelasan: "Kita harus pakai await karena proses membuka memori HP itu butuh waktu (asynchronous), jadi aplikasi harus menunggu sebentar sampai memorinya siap dibuka."
+
+prefs.setString('key', value) vs prefs.getString('key'):
+
+Penjelasan: setString untuk menyimpan (menulis), getString untuk mengambil (membaca).
+
+prefs.setBool('isLogin', true):
+
+Penjelasan: "Ini teknik flagging (penanda). Kalau nilainya true, berarti user sudah login, jadi pas aplikasi dibuka lagi, langsung masuk Home tanpa Login."
+
+2. Topik: Request API (List Page & Detail Page)
+Ini inti dari aplikasi yang menampilkan data News, Blog, Report.
+
+Variabel Penting:
+
+List<dynamic> dataList: Variabel (array) kosong untuk menampung data yang datang dari internet.
+
+bool isLoading = true: Variabel penanda status.
+
+Penjelasan: "Saat true, layar menampilkan loading spinner. Saat data sudah sampai, kita ubah jadi false agar layar menampilkan daftar berita."
+
+Fungsi/Kode Penting:
+
+http.get(Uri.parse(url)):
+
+Penjelasan: "Fungsi untuk mengirim permintaan (request) ke server API menggunakan metode GET (mengambil data)."
+
+jsonDecode(response.body):
+
+Penjelasan: "Data dari server bentuknya teks panjang (String JSON). Komputer tidak bisa mengolahnya langsung. Fungsi ini mengubah teks JSON itu menjadi objek Map/List agar bisa dipakai di Dart."
+
+setState(() { ... }):
+
+Penjelasan: "Ini WAJIB. Kalau kita ubah variabel dataList tanpa setState, tampilan di layar tidak akan berubah. setState menyuruh Flutter menggambar ulang (re-build) layar dengan data baru."
+
+Ini adalah panduan "Cheat Sheet" untuk ujian/responsi Anda. Biasanya penguji (dosen/asisten) akan menunjuk kode tertentu dan bertanya: "Ini maksudnya apa?" atau "Kenapa pakai fungsi ini?".
+
+Berikut adalah poin-poin krusial yang harus Anda pahami dan siap jelaskan:
+
+1. Topik: SharedPreferences (Login & Register)
+Ini adalah syarat utama di soal.
+
+Variabel Penting:
+
+SharedPreferences prefs: Objek utama untuk mengakses memori penyimpanan HP.
+
+Key 'username', 'password', 'isLogin': Ini adalah "label" loker penyimpanan. Kunci ini harus sama persis saat menyimpan dan saat mengambil.
+
+Fungsi/Kode Penting:
+
+await SharedPreferences.getInstance():
+
+Penjelasan: "Kita harus pakai await karena proses membuka memori HP itu butuh waktu (asynchronous), jadi aplikasi harus menunggu sebentar sampai memorinya siap dibuka."
+
+prefs.setString('key', value) vs prefs.getString('key'):
+
+Penjelasan: setString untuk menyimpan (menulis), getString untuk mengambil (membaca).
+
+prefs.setBool('isLogin', true):
+
+Penjelasan: "Ini teknik flagging (penanda). Kalau nilainya true, berarti user sudah login, jadi pas aplikasi dibuka lagi, langsung masuk Home tanpa Login."
+
+2. Topik: Request API (List Page & Detail Page)
+Ini inti dari aplikasi yang menampilkan data News, Blog, Report.
+
+Variabel Penting:
+
+List<dynamic> dataList: Variabel (array) kosong untuk menampung data yang datang dari internet.
+
+bool isLoading = true: Variabel penanda status.
+
+Penjelasan: "Saat true, layar menampilkan loading spinner. Saat data sudah sampai, kita ubah jadi false agar layar menampilkan daftar berita."
+
+Fungsi/Kode Penting:
+
+http.get(Uri.parse(url)):
+
+Penjelasan: "Fungsi untuk mengirim permintaan (request) ke server API menggunakan metode GET (mengambil data)."
+
+jsonDecode(response.body):
+
+Penjelasan: "Data dari server bentuknya teks panjang (String JSON). Komputer tidak bisa mengolahnya langsung. Fungsi ini mengubah teks JSON itu menjadi objek Map/List agar bisa dipakai di Dart."
+
+setState(() { ... }):
+
+Penjelasan: "Ini WAJIB. Kalau kita ubah variabel dataList tanpa setState, tampilan di layar tidak akan berubah. setState menyuruh Flutter menggambar ulang (re-build) layar dengan data baru."
+
+3. Topik: Navigasi & Passing Data (Pindah Halaman)
+Soal meminta data detail diakses berdasarkan ID.
+
+Kode Penting:
+
+Dart
+
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => DetailPage(id: item['id'], category: widget.category),
+  ),
+);
+Penjelasan:
+
+Navigator.push: Menumpuk halaman baru di atas halaman lama.
+
+DetailPage(id: ...): Ini disebut Constructor.
+
+Cara Jawab: "Saya mengirimkan id dan category dari halaman List ke halaman Detail lewat constructor. Jadi halaman Detail tahu ID nomor berapa yang harus di-request ke API."
+
+4. Topik: Widget Lifecycle (initState)
+Penguji sering bertanya: "Kapan fungsi fetchDetail dipanggil?"
+
+Kode:
+
+Dart
+
+@override
+void initState() {
+  super.initState();
+  fetchDetail();
+}
+Penjelasan: "initState adalah fungsi yang dijalankan pertama kali saat halaman dibuat. Jadi begitu user masuk halaman Detail, aplikasi otomatis langsung memanggil fungsi fetchDetail untuk mengambil data tanpa harus pencet tombol apa-apa."
+
+5. Topik: Menampilkan Gambar & URL Launcher
+Sesuai soal yang meminta tombol untuk link ke web.
+
+Kode: Image.network(item['image_url'])
+
+Penjelasan: Widget khusus untuk menampilkan gambar dari internet (URL).
+
+Kode: launchUrl(Uri.parse(url))
+
+Penjelasan: Fungsi dari library url_launcher untuk melempar user keluar dari aplikasi kita menuju browser (Chrome/Safari) untuk membuka link berita asli.
+
+Simulasi Pertanyaan Penguji (Q&A)
+Q: Kenapa fungsi fetchDetail pakai Future dan async? A: "Karena mengambil data dari internet tidak instan. Async (asynchronous) membiarkan aplikasi tetap jalan (tidak macet/freeze) sambil menunggu datanya datang. Future adalah janji bahwa nanti datanya akan ada."
+
+Q: Kenapa di DetailPage kamu request API lagi? Kenapa tidak kirim datanya dari depan saja? A: "Sesuai instruksi soal, Pak/Bu. Soal meminta akses detail berdasarkan ID (/v4/{menu}/{id}/). Selain itu, cara ini memastikan data yang dibuka adalah data paling update dari server."
+
+Q: Apa bedanya Hot Reload dan Hot Restart? A: "Hot Reload cuma memperbarui tampilan kodingan (state tetap ada). Hot Restart me-reset aplikasi dari awal (state hilang), tapi data di SharedPreferences tetap aman karena tersimpan di memori fisik."

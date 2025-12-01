@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'login_page.dart';
 import 'list_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,94 +16,60 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _loadUsername();
+    _loadUser();
   }
 
-  void _loadUsername() async {
+  void _loadUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       username = prefs.getString('username') ?? "User";
     });
   }
 
+  void _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Hapus data login
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Hai, $username!"), // Requirement: AppBar menampilkan username [cite: 4]
-        backgroundColor: const Color.fromARGB(255, 255, 240, 240),
+        title: Text("Hai, $username!"), // Soal minta ini [cite: 7]
+        actions: [IconButton(onPressed: _logout, icon: const Icon(Icons.logout))],
       ),
-      
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Menu News [cite: 8]
-            _buildMenuCard(
-              title: "News",
-              description: "Get an overview of the latest SpaceFlight news.",
-              icon: Icons.article,
-              category: "articles", // Endpoint API
-              color: Colors.grey[100]!,
-            ),
-            const SizedBox(height: 16),
-            // Menu Blog [cite: 10]
-            _buildMenuCard(
-              title: "Blog",
-              description: "Blogs often provide a more detailed overview.",
-              icon: Icons.book,
-              category: "blogs", // Endpoint API
-              color: Colors.grey[100]!,
-            ),
-            const SizedBox(height: 16),
-            // Menu Report [cite: 12]
-            _buildMenuCard(
-              title: "Report",
-              description: "Space stations and other missions data.",
-              icon: Icons.analytics,
-              category: "reports", // Endpoint API
-              color: Colors.grey[100]!,
-            ),
+            _buildMenu("News", "articles", Icons.article, Colors.blue[100]!),
+            _buildMenu("Blog", "blogs", Icons.book, Colors.orange[100]!),
+            _buildMenu("Report", "reports", Icons.analytics, Colors.green[100]!),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMenuCard({
-    required String title,
-    required String description,
-    required IconData icon,
-    required String category,
-    required Color color,
-  }) {
-    return InkWell(
+  Widget _buildMenu(String title, String category, IconData icon, Color color) {
+    return GestureDetector(
       onTap: () {
-        // Navigasi ke halaman List sesuai menu yang dipilih [cite: 4, 15]
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => ListPage(category: category, title: title),
-          ),
+          MaterialPageRoute(builder: (context) => ListPage(title: title, category: category)),
         );
       },
       child: Card(
         color: color,
+        margin: const EdgeInsets.only(bottom: 16),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20),
           child: Row(
             children: [
               Icon(icon, size: 50),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    Text(description),
-                  ],
-                ),
-              ),
+              const SizedBox(width: 20),
+              Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             ],
           ),
         ),

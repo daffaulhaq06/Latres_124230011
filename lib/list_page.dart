@@ -4,17 +4,17 @@ import 'package:http/http.dart' as http;
 import 'detail_page.dart';
 
 class ListPage extends StatefulWidget {
-  final String category; // 'articles', 'blogs', atau 'reports'
   final String title;
+  final String category; // 'articles', 'blogs', atau 'reports'
 
-  const ListPage({super.key, required this.category, required this.title});
+  const ListPage({super.key, required this.title, required this.category});
 
   @override
   State<ListPage> createState() => _ListPageState();
 }
 
 class _ListPageState extends State<ListPage> {
-  List<dynamic> dataList = [];
+  List<dynamic> listData = [];
   bool isLoading = true;
 
   @override
@@ -23,80 +23,73 @@ class _ListPageState extends State<ListPage> {
     fetchData();
   }
 
-  Future<void> fetchData() async {
-    // URL API dinamis berdasarkan kategori [cite: 54, 55]
-    final url = "https://api.spaceflightnewsapi.net/v4/${widget.category}/"; 
-    
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          dataList = data['results']; // Data ada di dalam object 'results'
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print(e);
+ Future<void> fetchData() async {
+  // 1. Cek URL di Console (Lihat bagian Run tab di bawah)
+  final url = "https://api.spaceflightnewsapi.net/v4/${widget.category}/"; 
+  print("Mencoba Request ke: $url");
+
+  try {
+    final response = await http.get(Uri.parse(url));
+
+    // 2. Cek Status Code
+    print("Status Code: ${response.statusCode}"); 
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
       setState(() {
-        isLoading = false;
+        listData = data['results'];
       });
+    } else {
+      // Jika error dari server
+      print("Gagal: ${response.body}");
+      throw Exception("Gagal memuat data");
     }
+  } catch (e) {
+    // 3. Tangkap Error Lain (misal gak ada sinyal)
+    print("ERROR TERJADI: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error: $e")),
+    );
+  } finally {
+    // 4. INI KUNCINYA: Apapun yang terjadi, matikan loading!
+    setState(() {
+      isLoading = false;
+    });
   }
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator()) // Loading Spinner
           : ListView.builder(
-              itemCount: dataList.length,
+              itemCount: listData.length,
               itemBuilder: (context, index) {
-                final item = dataList[index];
+                final item = listData[index];
                 return InkWell(
                   onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailPage(
-                                id: item['id'],           // KITA HANYA KIRIM ID
-                                category: widget.category // DAN KATEGORI (articles/blogs/reports)
-                              ),
-                            ),
-                          );
-                        },
+                    // Kirim ID dan Category ke Detail Page 
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailPage(
+                          id: item['id'], 
+                          category: widget.category
+                        ),
+                      ),
+                    );
+                  },
                   child: Card(
-                    margin: const EdgeInsets.all(8),
+                    margin: const EdgeInsets.all(10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Gambar Item
-                        Container(
-                          height: 200,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(item['image_url']),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                          ),
-                        ),
+                        Image.network(item['image_url'], height: 200, width: double.infinity, fit: BoxFit.cover),
                         Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item['title'],
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(item['news_site'] ?? "Source unknown"),
-                              Text(item['published_at'].substring(0, 10)), // Format tanggal sederhana
-                            ],
-                          ),
+                          padding: const EdgeInsets.all(10),
+                          child: Text(item['title'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         ),
                       ],
                     ),

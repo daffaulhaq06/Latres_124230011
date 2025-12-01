@@ -1,34 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
+import 'home_page.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  
+  // Cek apakah user sudah pernah login (ada username tersimpan?)
+  String? username = prefs.getString('username');
+  
+  runApp(MyApp(isLogin: username != null));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLogin;
+  const MyApp({super.key, required this.isLogin});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'News App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 100, 100, 101)),
-        useMaterial3: true,
-      ),
-      home: const LoginPage(),
+      debugShowCheckedModeBanner: false, // Hilangkan label debug
+      home: isLogin ? const HomePage() : const LoginPage(),
     );
   }
 }
-
-/*SharedPreferences adalah mekanisme penyimpanan data sederhana di dalam aplikasi Android/Flutter.
-
-Secara konsep, bayangkan SharedPreferences seperti catatan kecil atau sticky note yang disimpan di dalam memori HP. Data ini akan tetap ada meskipun aplikasi ditutup (terminated) dan dibuka kembali.
-
-Dalam tugas Anda, SharedPreferences diminta digunakan pada Halaman Register dan Login Sederhana.
-
-Berikut adalah penjelasan detail letaknya di dalam kode yang saya berikan sebelumnya:
-
-1. Apa Fungsinya di Aplikasi Ini?
-Sesuai soal, fungsinya adalah menyimpan Username yang diinput saat login, supaya bisa ditampilkan kembali di halaman utama ("Hai, Username!").*/
